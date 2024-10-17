@@ -3,32 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Custom Domain</title>
+    <title>Proxy URL Input Example</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
         }
-
-        .iframe-container {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        #urlBox {
+            display: none; /* Hidden initially */
         }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="iframe-container">
-        <iframe src="https://mac-web.github.io/macvg/" title="macvg"></iframe>
+
+    <h1>Website Connection Checker</h1>
+    <p id="status">Checking connection...</p>
+    
+    <div id="urlBox">
+        <p>Connection failed. Enter a new target URL:</p>
+        <form id="urlForm">
+            <input type="text" id="targetUrl" placeholder="Enter target URL" required>
+            <input type="submit" value="Connect">
+        </form>
     </div>
+
+    <script>
+        const proxyUrl = 'https://your-proxy-url.com/';
+        const targetUrl = 'https://example.com/';
+        const statusEl = document.getElementById('status');
+        const urlBox = document.getElementById('urlBox');
+        const urlForm = document.getElementById('urlForm');
+
+        // Check connection to the target URL
+        function checkConnection(url) {
+            fetch(proxyUrl + url)
+                .then(response => {
+                    if (response.ok) {
+                        statusEl.textContent = "Connected to " + url;
+                    } else {
+                        showUrlInputBox();
+                    }
+                })
+                .catch(() => {
+                    showUrlInputBox();
+                });
+        }
+
+        // Show input box if the connection fails
+        function showUrlInputBox() {
+            statusEl.textContent = "Failed to connect to the website.";
+            urlBox.style.display = 'block'; // Show the input box
+        }
+
+        // Handle form submission for the new target URL
+        urlForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const newUrl = document.getElementById('targetUrl').value;
+            statusEl.textContent = "Trying to connect to " + newUrl;
+            checkConnection(newUrl); // Check connection with the new URL
+        });
+
+        // Initial check for the target URL
+        checkConnection(targetUrl);
+    </script>
+
 </body>
 </html>

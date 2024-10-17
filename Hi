@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Web Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Web Browser</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL (e.g., https://example.com)">
+    <button id="browseBtn">Browse</button>
+    <iframe id="webFrame" src="https://www.google.com/" sandbox="allow-same-origin allow-scripts"></iframe>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const webFrame = document.getElementById('webFrame');
+
+        browseBtn.addEventListener('click', () => {
+            let url = urlInput.value;
+
+            // Validate URL and add http:// if necessary
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'http://' + url;
+            }
+
+            // Set iframe src to the entered URL
+            webFrame.src = url;
+        });
+
+        // Allow links to navigate in the same iframe
+        webFrame.onload = () => {
+            const frameDocument = webFrame.contentDocument || webFrame.contentWindow.document;
+            const links = frameDocument.querySelectorAll('a');
+
+            links.forEach(link => {
+                link.onclick = function(event) {
+                    event.preventDefault(); // Prevent default anchor behavior
+                    const href = link.getAttribute('href');
+                    if (href) {
+                        webFrame.src = href; // Load the link in the iframe
+                    }
+                };
+            });
+        };
+    </script>
+</body>
+</html>

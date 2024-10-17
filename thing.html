@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxy URL Input Example</title>
+    <title>Proxy URL Connector</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin-top: 20px;
         }
         #urlBox {
-            display: none; /* Hidden initially */
+            margin-top: 20px;
+        }
+        #content {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 90%;
+            height: 600px;
+            overflow: auto;
         }
         input[type="text"] {
             padding: 10px;
@@ -22,60 +30,66 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Website Connection Checker</h1>
-    <p id="status">Checking connection...</p>
+    <h1>Proxy URL Connector</h1>
+    <p id="status">Enter a URL to connect:</p>
     
     <div id="urlBox">
-        <p>Connection failed. Enter a new target URL:</p>
-        <form id="urlForm">
-            <input type="text" id="targetUrl" placeholder="Enter target URL" required>
-            <input type="submit" value="Connect">
-        </form>
+        <input type="text" id="targetUrl" placeholder="Enter target URL (e.g., https://www.coolmathgames.com)" required>
+        <input type="submit" id="connectButton" value="Connect">
+    </div>
+
+    <div id="content">
+        <p>Loading content...</p>
     </div>
 
     <script>
-        const proxyUrl = '1.1.1.1';
-        const targetUrl = 'https://coolmathgames.com/';
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         const statusEl = document.getElementById('status');
-        const urlBox = document.getElementById('urlBox');
-        const urlForm = document.getElementById('urlForm');
+        const urlInput = document.getElementById('targetUrl');
+        const connectButton = document.getElementById('connectButton');
+        const contentDiv = document.getElementById('content');
 
-        // Check connection to the target URL
+        // Function to check connection to the target URL
         function checkConnection(url) {
             fetch(proxyUrl + url)
                 .then(response => {
                     if (response.ok) {
-                        statusEl.textContent = "Connected to " + url;
+                        return response.text();
                     } else {
-                        showUrlInputBox();
+                        throw new Error("Failed to connect");
                     }
                 })
+                .then(data => {
+                    statusEl.textContent = "Connected to " + url;
+                    contentDiv.innerHTML = data;  // Render the content
+                })
                 .catch(() => {
-                    showUrlInputBox();
+                    showError("Failed to connect to the website.");
                 });
         }
 
-        // Show input box if the connection fails
-        function showUrlInputBox() {
-            statusEl.textContent = "Failed to connect to the website.";
-            urlBox.style.display = 'block'; // Show the input box
+        // Show error message if the connection fails
+        function showError(message) {
+            statusEl.textContent = message;
+            contentDiv.innerHTML = "<p>Could not load content. Please check the URL.</p>";
         }
 
-        // Handle form submission for the new target URL
-        urlForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const newUrl = document.getElementById('targetUrl').value;
-            statusEl.textContent = "Trying to connect to " + newUrl;
-            checkConnection(newUrl); // Check connection with the new URL
+        // Handle button click for the new target URL
+        connectButton.addEventListener('click', function(event) {
+            const newUrl = urlInput.value.trim();
+            if (newUrl) {
+                statusEl.textContent = "Trying to connect to " + newUrl;
+                checkConnection(newUrl); // Check connection with the new URL
+            } else {
+                showError("Please enter a valid URL.");
+            }
         });
-
-        // Initial check for the target URL
-        checkConnection(targetUrl);
     </script>
 
 </body>
